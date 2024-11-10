@@ -30,7 +30,7 @@ class MinuteInputField extends StatelessWidget {
           ),
         ),
         Text(
-          ' мин',
+          ' сек',
           style: TextStyle(
             fontSize: fontSize,
           ),
