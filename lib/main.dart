@@ -1,6 +1,11 @@
+// main.dart
+
 import 'package:flutter/material.dart';
 
 import 'timer_logic.dart';
+import 'widgets/action_button.dart';
+import 'widgets/countdown_text.dart';
+import 'widgets/minute_input_field.dart';
 
 void main() => runApp(MyApp());
 
@@ -43,7 +48,7 @@ class _TimerAppState extends State<TimerApp> {
   }
 
   void _updateUI() {
-    setState(() {}); // Rebuild the UI when notified
+    setState(() {}); // Перерисовка UI при уведомлении
   }
 
   @override
@@ -53,61 +58,68 @@ class _TimerAppState extends State<TimerApp> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (!timerLogic.isWorkMode && !timerLogic.isBreakMode) ...[
-                TextField(
-                  controller: workController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Установить продолжительность работы (минуты)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    timerLogic.startWorkMode(workController.text);
-                  },
-                  child: Text('Работаем'),
-                ),
-              ] else if (timerLogic.isWorkMode) ...[
-                Text(
-                  timerLogic.timerText,
-                  style: TextStyle(fontSize: 48),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: timerLogic.startBreakSetup,
-                  child: Text('Возьму перерыв'),
-                ),
-              ] else if (timerLogic.isBreakMode) ...[
-                Text(
-                  timerLogic.timerText,
-                  style: TextStyle(fontSize: 48),
-                ),
-                SizedBox(height: 20),
-                TextField(
-                  controller: breakController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Установить продолжительность перерыва (минуты)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    timerLogic.startBreakMode(breakController.text);
-                  },
-                  child: Text('Отлично, отдыхаем'),
-                ),
-              ],
-            ],
-          ),
+          child: buildContent(),
         ),
       ),
     );
+  }
+
+  Widget buildContent() {
+    if (!timerLogic.isWorkMode && !timerLogic.isBreakMode) {
+      // Начальный экран
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          MinuteInputField(
+            controller: workController,
+          ),
+          SizedBox(width: 10),
+          ActionButton(
+            text: 'Работаем',
+            onPressed: () {
+              timerLogic.startWorkMode(workController.text);
+            },
+          ),
+        ],
+      );
+    } else if (timerLogic.isWorkMode) {
+      // Экран режима работы
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CountdownText(
+            text: timerLogic.timerText,
+          ),
+          SizedBox(height: 20),
+          ActionButton(
+            text: 'Возьму перерыв',
+            onPressed: timerLogic.startBreakSetup,
+          ),
+        ],
+      );
+    } else if (timerLogic.isBreakMode) {
+      // Экран режима перерыва
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CountdownText(
+            text: timerLogic.timerText,
+          ),
+          SizedBox(height: 20),
+          MinuteInputField(
+            controller: breakController,
+          ),
+          SizedBox(height: 20),
+          ActionButton(
+            text: 'Отлично, отдыхаем',
+            onPressed: () {
+              timerLogic.startBreakMode(breakController.text);
+            },
+          ),
+        ],
+      );
+    } else {
+      return Container();
+    }
   }
 }
